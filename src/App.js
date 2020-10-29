@@ -1,5 +1,6 @@
 //feature 1
 import React from "react";
+import Cart from "./components/Cart";
 import Filter from "./components/Filter";
 import Products from "./components/Products";
 import data from "./data.json";
@@ -11,8 +12,36 @@ class App extends React.Component {
       products: data.products,
       size: "",
       sort: "",
+      cartItems: [],
     };
   }
+
+  addToCart = (product) => {
+    //copying the array using slice method
+    const cartItems = this.state.cartItems.slice();
+    let alreadyIn = false;
+    cartItems.forEach((item) => {
+      if (item._id === product._id) {
+        item.count++;
+        console.log("increasing count of " + item._id + " to " + item.count);
+        alreadyIn = true;
+      }
+    });
+    if (!alreadyIn) {
+      console.log("adding " + product._id);
+      cartItems.push({ ...product, count: 1 });
+    }
+
+    this.setState({ cartItems });
+  };
+
+  removeFromCart = (product) => {
+    //copying the array using slice method
+    const cartItems = this.state.cartItems.slice();
+    this.setState({
+      cartItems: cartItems.filter((item) => item._id !== product._id),
+    });
+  };
 
   sortProducts = (event) => {
     console.log(event.target.value);
@@ -67,9 +96,17 @@ class App extends React.Component {
                 filterProducts={this.filterProducts}
                 sortProducts={this.sortProducts}
               ></Filter>
-              <Products products={this.state.products}></Products>
+              <Products
+                products={this.state.products}
+                addToCart={this.addToCart}
+              ></Products>
             </div>
-            <div className="sidebar">Cart items</div>
+            <div className="sidebar">
+              <Cart
+                cartItems={this.state.cartItems}
+                removeFromCart={this.removeFromCart}
+              />
+            </div>
           </div>
         </main>
         <footer>All right is reserved</footer>
