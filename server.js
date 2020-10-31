@@ -25,6 +25,7 @@ const Product = mongoose.model(
   })
 );
 
+//PRODUCTS
 app.get("/api/products", async (req, res) => {
   const products = await Product.find({});
   res.send(products);
@@ -41,8 +42,49 @@ app.delete("/api/products/:id", async (req, res) => {
   res.send(deletedProduct);
 });
 
+//ORDERS
+
+const Order = mongoose.model(
+  "order",
+  new mongoose.Schema(
+    {
+      _id: { type: String, default: shortid.generate },
+      email: String,
+      name: String,
+      address: String,
+      total: Number,
+      cartItems: [
+        {
+          _id: String,
+          title: String,
+          price: Number,
+          count: Number,
+        },
+      ],
+    },
+    { timestamps: true }
+  )
+);
+
+app.post("/api/orders", async (req, res) => {
+  if (
+    !req.body.name ||
+    !req.body.email ||
+    !req.body.address ||
+    !req.body.total ||
+    !req.body.cartItems
+  ) {
+    return res.send({ message: "data is required!" });
+  }
+  const newOrder = new Order(req.body);
+  const savedOrder = await newOrder.save();
+  res.send(savedOrder);
+});
+
+//GENERAL
 app.get("/api/info", async (req, res) => {
   res.send("running!");
 });
+
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log("serve at http://localhost:5000"));
